@@ -5,7 +5,7 @@ import os
 
 from model import ActorCritic
 
-
+@torch.no_grad()
 def test(epochs=5, load_path="./ckpts/LunarLander_0.02_0.9_0.99.pth"):
     # Set up Configs
     MAX_ITERATION = 10000
@@ -20,7 +20,7 @@ def test(epochs=5, load_path="./ckpts/LunarLander_0.02_0.9_0.99.pth"):
         running_reward = 0
         for t in range(1, MAX_ITERATION+1):
             action = policy(obser)
-            _, reward, terminated, truncated, _ = env.step(action)
+            obser, reward, terminated, truncated, _ = env.step(action)
             running_reward += reward
             img = env.render()
             img = Image.fromarray(img)

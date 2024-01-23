@@ -1,9 +1,11 @@
 import os
 import torch
+import time
 import torch.optim as optim
 import argparse
 import gym
 from PIL import Image
+from tensorboardX import SummaryWriter
 
 from test import test
 from model import ActorCritic
@@ -29,16 +31,20 @@ env.action_space.seed(args.random_seed)
 policy = ActorCritic()
 optimizer = optim.Adam(policy.parameters(), lr=args.lr, betas=args.betas)
 
+current_time = time.strftime("%Y-%m-%dT%H:%M", time.localtime())
+writer = SummaryWriter(log_dir=os.path.join("./log", current_time))
+
 running_reward = 0
 for epoch in range(1, args.epochs+1):
     obser, _ = env.reset()
 
+    score = 0
     for t in range(1, args.max_iteration+1):
         action = policy(obser)
         obser, reward, terminated, truncated, _ = env.step(action)
 
         policy.rewards.append(reward)
-        running_reward += reward
+        score += reward
 
         if epoch % 200 == 0:
             img = env.render()
@@ -51,6 +57,8 @@ for epoch in range(1, args.epochs+1):
         if terminated or truncated:
             break
 
+    running_reward += score
+    writer.add_scalar("Training score", score, epoch)
     optimizer.zero_grad()
     loss = policy.calculateLoss(args.gamma)
     loss.backward()

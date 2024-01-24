@@ -7,7 +7,6 @@ import gym
 from PIL import Image
 from tensorboardX import SummaryWriter
 
-from test import test
 from model import ActorCritic
 
 opts = argparse.ArgumentParser()
@@ -69,7 +68,6 @@ for epoch in range(1, args.epochs+1):
         save_path = "./ckpts/LunarLander_{}_{}_{}.pth".format(args.lr, args.betas[0], args.betas[1])
         torch.save(policy.state_dict(), save_path)
         print("############## Finish Training ##############")
-        test(load_path=save_path)
         break
 
     if epoch % 20 == 0:

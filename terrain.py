@@ -40,8 +40,6 @@ class Terrain:
     def generate(self, width, height, displacement, iteration):
         # Base case. This also calls the functions which generate the actual x and y points and the multipliers
         if iteration > 7:
-            self._y[0] = 1.0 / 5.0 * height
-            self._y[-1] = 1.0 / 5.0 * height
             self.multiplierPlace()
             self.points()
             return

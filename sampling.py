@@ -2,7 +2,6 @@ import torch
 import gym
 import os
 from PIL import Image
-import json
 import numpy as np
 
 from model import ActorCritic
@@ -56,7 +55,4 @@ for epoch in range(1, epochs+1):
 env.close()
 
 np.save("./actions/v1_{:05d}".format(required), np.asarray(records))
-
-# with open("./json/v1_{:05d}.json".format(epochs), "w") as outfile:
-#     json.dump(records, outfile)
      

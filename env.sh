@@ -1,0 +1,1 @@
+salloc -n 6

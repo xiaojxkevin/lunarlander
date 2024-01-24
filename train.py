@@ -9,6 +9,7 @@ from tensorboardX import SummaryWriter
 
 from test import test
 from model import ActorCritic
+from stable_baselines3 import PPO
 
 opts = argparse.ArgumentParser()
 opts.add_argument("--random_seed", type=int, default=3407)

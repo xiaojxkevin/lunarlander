@@ -1,0 +1,5 @@
+2024-01-24 17:20:15,497 INFO    StreamThr :4524 [internal.py:wandb_internal():86] W&B internal server running at pid: 4524, started at: 2024-01-24 17:20:15.497654
+2024-01-24 17:20:15,498 DEBUG   HandlerThread:4524 [handler.py:handle_request():146] handle_request: status
+2024-01-24 17:20:15,500 INFO    WriterThread:4524 [datastore.py:open_for_write():87] open: C:\data\CS181\lunarlander\wandb\run-20240124_172015-wxr5wy6j\run-wxr5wy6j.wandb
+2024-01-24 17:20:15,500 DEBUG   SenderThread:4524 [sender.py:send():382] send: header
+2024-01-24 17:20:15,549 DEBUG   SenderThread:4524 [sender.py:send():382] send: run

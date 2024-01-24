@@ -11,6 +11,21 @@ conda install -c ankurankan pgmpy # may be for Probabilistic Graphical Models
 pip install tensorboard tensorboardX
 ```
 
+## RL with QLearning
+
+### Visual Results
+
+#### After Training 20 Epochs
+<img src="assets/ql/20.gif" width=400 height=240/>
+
+#### After Training 100 Epochs
+<img src="assets/ql/100.gif" width=400 height=240/>
+
+### Test on 100 Epochs
+```bash
+mean: 225.14527054974315 std: 62.88393475576646 max: 299.080730952846 min: -91.00848452617487
+```
+
 ## RL with ActorCritic
 
 ### Visual Results
@@ -29,19 +44,14 @@ pip install tensorboard tensorboardX
 mean: 90.56262718486646 std: 50.90599388292423 max: 196.7647751914238 min: -89.969924180479
 ```
 
-## RL with QLearning
+## Offline learning with MLP
 
-### Visual Results
-
-#### After Training 20 Epochs
-<img src="assets/ql/20.gif" width=400 height=240/>
-
-#### After Training 100 Epochs
-<img src="assets/ql/100.gif" width=400 height=240/>
+### A successful case:
+<img src="assets/offline_learning/offline_leanring.gif" width=400 height=240/>
 
 ### Test on 100 Epochs
 ```bash
-mean: 225.14527054974315 std: 62.88393475576646 max: 299.080730952846 min: -91.00848452617487
+mean: 228.52481574436288 std: 70.03703811274288 max: 295.4086650330729 min: -167.62464413445562
 ```
 
 ## Reference

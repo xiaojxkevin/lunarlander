@@ -137,3 +137,20 @@ class ActorCritic(nn.Module):
         del self.logprobs[:]
         del self.state_values[:]
         del self.rewards[:]
+
+
+class OfflineClassifier(nn.Module):
+    def __init__(self) -> None:
+        super(OfflineClassifier, self).__init__()
+        self.linear1 = nn.Linear(8, 256)
+        self.linear2 = nn.Linear(256, 256)
+        self.linear3 = nn.Linear(256, 128)
+        self.linear4 = nn.Linear(128, 4)
+
+    def forward(self, x):
+        x = F.relu(self.linear1(x))
+        x = F.relu(self.linear2(x))
+        x = F.relu(self.linear3(x))
+        x = self.linear4(x)
+
+        return x

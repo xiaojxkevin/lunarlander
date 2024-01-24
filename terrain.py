@@ -38,7 +38,6 @@ class Terrain:
 
     # Randomly generates a terrain
     def generate(self, width, height, displacement, iteration):
-
         # Base case. This also calls the functions which generate the actual x and y points and the multipliers
         if iteration > 7:
             self.multiplierPlace()
@@ -150,13 +149,15 @@ class Terrain:
         self._multipliersIndexes = []
         self._multipliersValues = []
 
-        for i in range(4):
+        for i in range(1):
             # Calculates length as a random number between 2 and 5
-            length = random.randint(0, 32767) % 4 + 2
+            # length = random.randint(0, 32767) % 4 + 2
+            length = 5
 
             # Calculates place as random index between 0 and 5th to last index of x
             # This ensures that the multipliers stay within the terrain previously generated
-            place = random.randint(0, 32767) % (len(self._x) - 4)
+            # place = random.randint(0, 32767) % (len(self._x) - 4)
+            place = int(len(self._x) / 2)
 
             # This checks if the multiplier was placed on top of an already existing multiplier. If so, reroll place.
             while True:

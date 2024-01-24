@@ -54,7 +54,7 @@ class Game:
         game.ship.setVel(50, 0)
         game.ship.setAng(0)
         game.ship.setAccMode(0)
-        game.terrain.generate(WIDTH, HEIGHT, 450, 1)
+        game.terrain.generate(WIDTH, HEIGHT, 0, 1)
         game.collided = 0
         game.multiplier = 1
         game.xTerrain = game.terrain.getXPoints()
@@ -212,6 +212,10 @@ def update(dt):
             # Checks if the ship collided with the terrain
             game.collided = 0
             game.collided = game.ship.collision(game.xTerrain, game.yTerrain)
+
+            # We just play once ever turn
+            if game.collided != 0:
+                game.state = 3
 
             # Crashed
             if game.collided == 1:

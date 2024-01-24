@@ -1,0 +1,53 @@
+{
+    "os": "Windows-10-10.0.22621-SP0",
+    "python": "3.9.18",
+    "heartbeatAt": "2024-01-24T07:12:20.197021",
+    "startedAt": "2024-01-24T07:12:17.528185",
+    "docker": null,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "C:\\data\\CS181\\lunarlander\\DQN.py",
+    "codePathLocal": "DQN.py",
+    "codePath": "DQN.py",
+    "git": {
+        "remote": "https://github.com/xiaojxkevin/lunarlander.git",
+        "commit": "1470014d3ad2ef492fce3adbfa2baf8173c06bc0"
+    },
+    "email": "yangzm@shanghaitech.edu.cn",
+    "root": "C:/data/CS181/lunarlander",
+    "host": "LAPTOP-HQQJ7UMF",
+    "username": "yzm",
+    "executable": "C:\\Users\\yzm\\anaconda3\\envs\\tf\\python.exe",
+    "cpu_count": 8,
+    "cpu_count_logical": 16,
+    "cpu_freq": {
+        "current": 4001.0,
+        "min": 0.0,
+        "max": 4001.0
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 4001.0,
+            "min": 0.0,
+            "max": 4001.0
+        }
+    ],
+    "disk": {
+        "/": {
+            "total": 449.6331214904785,
+            "used": 421.8111152648926
+        }
+    },
+    "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+    "gpu_count": 1,
+    "gpu_devices": [
+        {
+            "name": "NVIDIA GeForce RTX 4060 Laptop GPU",
+            "memory_total": 8585740288
+        }
+    ],
+    "memory": {
+        "total": 15.2222900390625
+    }
+}

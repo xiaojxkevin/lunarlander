@@ -66,6 +66,43 @@ class Game:
         game.playing = True
         game.resetScheduled = False
 
+    def execute_action(self, action=0):
+        state = self
+        reward = 0
+        isGameEnd = 0
+
+        reward -= 1
+
+        if action == 0:
+            self.customUpdate(Game.Input())
+        elif action == 1:
+            self.customUpdate(Game.Input(left=1))
+        elif action == 2:
+            self.customUpdate(Game.Input(right=1))
+        elif action == 3:
+            self.customUpdate(Game.Input(up=1))
+        elif action == 4:
+            self.customUpdate(Game.Input(down=1))
+
+        state = self
+
+        if self.gas > 0:
+            # If the user has a good landing
+            if self.landingType == 1:
+                reward += 500
+            # If the user has a hard landing
+            elif self.landingType == 2:
+                reward += 200
+            # Too fast resulting in a crash
+            elif self.landingType == 3:
+                reward -= 200
+        else:
+            reward -= 200
+
+        isGameEnd = (self.state == 3)
+
+        return state, reward, isGameEnd
+
     # Callback for switching from game over screen
     def gameOver(self):
         game.resetScheduled = False
@@ -78,6 +115,10 @@ class Game:
 
     def getGameInfo(self):
         return Game.GameInfo(self.ship, self.terrain)
+
+    def get_ship_info(self):
+        return self.ship.xpos, self.ship.ypos, self.ship.xVel, self.ship.yVel, self.ship.ang, self.ship.gas, self.ship.accMode
+
 
     class Input:
         def __init__(self, left=0, right=0, up=0, down=0):

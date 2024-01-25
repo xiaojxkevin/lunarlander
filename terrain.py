@@ -1,5 +1,9 @@
 import random
 
+import lunarLander
+import utils
+
+
 # Terrain class
 class Terrain:
     # Initialize terrain vecotrs
@@ -115,6 +119,35 @@ class Terrain:
             self._y[self._multipliersIndexes[i] + self._multipliersLengths[i] - 1] - 2), (255, 255, 255))
             screen.draw.text(multi, ((self._x[self._multipliersIndexes[i]] + self._x[self._multipliersIndexes[i] +
                                       self._multipliersLengths[i] - 1]) / 2.0-8, self._y[self._multipliersIndexes[i]] + 15), fontsize = 16, fontname="dylova")
+
+    def customDraw(self, win):
+        import pygame as pg
+
+        for j in range(len(self._x) - 1):
+            i = j + 1
+            pg.draw.line(
+                win,
+                lunarLander.White,
+                (self._x[i - 1], self._y[i - 1]),
+                (self._x[i], self._y[i]))
+
+        for i in range(len(self._multipliersIndexes)):
+            multi = str(self._multipliersValues[i]) + "x"
+            pg.draw.line(
+                win,
+                lunarLander.White,(self._x[self._multipliersIndexes[i]], self._y[self._multipliersIndexes[i]] - 1), (
+                self._x[self._multipliersIndexes[i] + self._multipliersLengths[i] - 1],
+                self._y[self._multipliersIndexes[i] + self._multipliersLengths[i] - 1] - 1))
+            pg.draw.line(
+                win,
+                lunarLander.White,
+                (self._x[self._multipliersIndexes[i]], self._y[self._multipliersIndexes[i]] - 2), (
+                self._x[self._multipliersIndexes[i] + self._multipliersLengths[i] - 1],
+                self._y[self._multipliersIndexes[i] + self._multipliersLengths[i] - 1] - 2))
+            utils.drawText(win,
+                           multi,
+                           ((self._x[self._multipliersIndexes[i]] + self._x[self._multipliersIndexes[i] + self._multipliersLengths[i] - 1]) / 2.0 - 8,
+                           self._y[self._multipliersIndexes[i]] + 15))
 
     # Calculate actual x and y points for collision detection
     def points(self):

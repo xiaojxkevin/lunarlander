@@ -1,5 +1,7 @@
 import math
 
+import lunarLander
+
 PI = 3.1415926
 
 # Ship class
@@ -138,6 +140,34 @@ class Ship:
             screen.draw.line((self.xpos - 6.0*math.cos(self.ang - (PI / 6.0)), self.ypos - 6.0*math.sin(self.ang - PI / 6.0)),
                 (self.xpos - 6.0*math.cos(self.ang) - (float(self.accMode))*2.0*math.cos(self.ang), self.ypos - 6.0*math.sin(self.ang) -(float(self.accMode))*2.0*math.sin(self.ang)), (255, 255, 255))
         screen.draw.circle((self.xpos, self.ypos), 6, (255,255,255))
+
+    def customDraw(self, win):
+        import pygame as pg
+
+        pg.draw.line(
+            win,
+            lunarLander.White,
+            (self.xpos - 6.0 * math.cos(self.ang + (PI / 6.0)), self.ypos - 6.0 * math.sin(self.ang + PI / 6.0)),
+            (self.xpos - 12.0 * math.cos(self.ang + (PI / 6.0)), self.ypos - 12.0 * math.sin(self.ang + PI / 6.0)))
+        pg.draw.line(
+            win,
+            lunarLander.White,
+            (self.xpos - 6.0 * math.cos(self.ang - (PI / 6.0)), self.ypos - 6.0 * math.sin(self.ang - PI / 6.0)),
+            (self.xpos - 12.0 * math.cos(self.ang - (PI / 6.0)), self.ypos - 12.0 * math.sin(self.ang - PI / 6.0)))
+        if self.accMode > 0:
+            pg.draw.line(
+                win,
+                lunarLander.White,
+                (self.xpos - 6.0 * math.cos(self.ang + (PI / 6.0)), self.ypos - 6.0 * math.sin(self.ang + PI / 6.0)),
+                (self.xpos - 6.0 * math.cos(self.ang) - (float(self.accMode)) * 2.0 * math.cos(self.ang),
+                 self.ypos - 6.0 * math.sin(self.ang) - (float(self.accMode)) * 2.0 * math.sin(self.ang)))
+            pg.draw.line(
+                win,
+                lunarLander.White,
+                (self.xpos - 6.0 * math.cos(self.ang - (PI / 6.0)), self.ypos - 6.0 * math.sin(self.ang - PI / 6.0)),
+                (self.xpos - 6.0 * math.cos(self.ang) - (float(self.accMode)) * 2.0 * math.cos(self.ang),
+                 self.ypos - 6.0 * math.sin(self.ang) - (float(self.accMode)) * 2.0 * math.sin(self.ang)))
+        pg.draw.circle(win, lunarLander.White, (self.xpos, self.ypos), 6)
 
     # Check if ship collides with terrain from given terrain vectors
     def collision(self, xt, yt):

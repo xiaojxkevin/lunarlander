@@ -1,11 +1,15 @@
 # import pgzrun
 import ship as lander
 import terrain as land
+import utils
 
 WIDTH = 1400
 HEIGHT = 800
 DIM = (WIDTH, HEIGHT)
 PI = 3.1415926
+
+Black = (0, 0, 0)
+White = (255, 255, 255)
 
 # Game class
 class Game:
@@ -201,7 +205,64 @@ class Game:
                     self.gas = self.ship.getGas()
                     self.state = 3
 
-game = Game()
+    def customDraw(self):
+        import pygame as pg
+
+        pg.init()
+
+        # create the display window
+        win = pg.display.set_mode(DIM)
+        win.fill(Black)
+
+        pg.display.set_caption("Lunar Lander")
+
+        self.ship.customDraw(win)
+        self.terrain.customDraw(win)
+
+        scoreStr = "SCORE    " + str(self.score)
+        gasStr = "FUEL       " + str(int(self.gas))
+        altStr = "ALTITUDE                      " + str(int(HEIGHT - 10 - self.y))
+        xVelStr = "HORIZONTAL SPEED    " + str(int(self.xVel))
+        yVelStr = "VERTICAL SPEED         " + str(int(-self.yVel))
+
+        utils.drawText(win, scoreStr, (40, 40))
+        utils.drawText(win, gasStr, (40, 60))
+        utils.drawText(win, altStr, (WIDTH - 260, 40))
+        utils.drawText(win, xVelStr, (WIDTH - 260, 60))
+        utils.drawText(win, yVelStr, (WIDTH - 260, 80))
+
+
+        # If the ship collided with the terrain, display the correct message
+        if self.collided == 1:
+            utils.drawText(
+                win,
+                "YOU CRASHED\nYOU LOST 100 FUEL UNITS",
+                (WIDTH / 2 - 130, HEIGHT / 2 - 30))
+            if not self.resetScheduled:
+                self.resetScheduled = True
+                self.resetLife()
+        elif self.collided == 2:
+            if self.landingType == 1:
+                utils.drawText(
+                    win,
+                    "GOOD LANDING\n50 FUEL UNITS ADDED",
+                    (WIDTH / 2 - 100, HEIGHT / 2 - 30))
+            elif self.landingType == 2:
+                utils.drawText(
+                    win,
+                    "HARD LANDING",
+                    (WIDTH / 2 - 75, HEIGHT / 2 - 30))
+            elif self.landingType == 3:
+                utils.drawText(
+                    win,
+                    "YOU CRASHED\nYOU LOST 100 FUEL UNITS",
+                    (WIDTH / 2 - 130, HEIGHT / 2 - 30))
+            if not self.resetScheduled:
+                self.resetScheduled = True
+                self.resetLife()
+
+        file_name = "circle_blue.png"
+        pg.image.save(win, file_name)
 
 # Main logic for drawing
 def draw():
@@ -397,13 +458,17 @@ def update(dt):
 # pgzrun.go()
 
 if __name__ == "__main__":
+
     game = Game()
     game.resetGame()
+
+    # for i in range(500):
+    #     game.customUpdate(Game.Input(up=1))
 
     while game.state != 3:
         game.customUpdate(Game.Input(up=1))
 
-    print(game.ship.xpos, game.ship.ypos)
+    game.customDraw()
 
 
 

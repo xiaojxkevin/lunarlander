@@ -44,6 +44,11 @@ mean: 225.14527054974315 std: 62.88393475576646 max: 299.080730952846 min: -91.0
 mean: 90.56262718486646 std: 50.90599388292423 max: 196.7647751914238 min: -89.969924180479
 ```
 
+### With Exploration
+
+Two training phases
+<img src="assets/ac/a2c_explor.png" width=400 height=240/>
+
 ## Offline learning with MLP
 
 ### A successful case:
@@ -57,4 +62,6 @@ mean: 228.52481574436288 std: 70.03703811274288 max: 295.4086650330729 min: -167
 ## Reference
 
 1. [https://aayala4.github.io/Lunar-Lander-Python/](https://aayala4.github.io/Lunar-Lander-Python/)
-2. [https://github.com/nikhilbarhate99/Actor-Critic-PyTorch](https://github.com/nikhilbarhate99/Actor-Critic-PyTorch)
+2. [https://zhuanlan.zhihu.com/p/97856004](https://zhuanlan.zhihu.com/p/97856004)
+3. [https://rail.eecs.berkeley.edu/deeprlcourse-fa17/f17docs/lecture_5_actor_critic_pdf.pdf](https://rail.eecs.berkeley.edu/deeprlcourse-fa17/f17docs/lecture_5_actor_critic_pdf.pdf)
+4. [https://blog.csdn.net/qq_33302004/article/details/115530428](https://blog.csdn.net/qq_33302004/article/details/115530428)

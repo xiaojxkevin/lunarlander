@@ -94,25 +94,26 @@ class ActorCritic(nn.Module):
         self.logprobs = []
         self.state_values = []
         self.rewards = []
+        self.action_probs = []
 
     def forward(self, x):
         x = torch.from_numpy(x).float()
         # Endocding
         x = F.relu(self.encoder(x))
-
-        # Decoding
+        # Value
         state_value = self.value_layer(x)
-
+        # Action
         action_probs = F.softmax(self.action_layer(x), dim=0)
         action_distribution = Categorical(action_probs)
         action = action_distribution.sample()
 
+        self.action_probs.append(action_probs)
         self.logprobs.append(action_distribution.log_prob(action))
         self.state_values.append(state_value)
 
         return action.item()
 
-    def calculateLoss(self, gamma=0.99):
+    def compute_loss(self, gamma=0.99, w=0.5):
 
         # calculating discounted rewards:
         rewards = []
@@ -126,17 +127,28 @@ class ActorCritic(nn.Module):
         rewards = (rewards - rewards.mean()) / (rewards.std())
 
         loss = 0
-        for logprob, value, reward in zip(self.logprobs, self.state_values, rewards):
-            advantage = reward  - value.item()
+        # print(self.action_probs)
+        # a = self.action_probs[0]
+        # print(torch.special.entr(a))
+        # assert False
+        # assert False, "\n{}\n{}\n{}\n{}".format(len(self.logprobs),
+        #                                     len(self.state_values),
+        #                                     rewards.shape,
+        #                                     len(self.action_probs))
+        entrop_sum = 0
+        for logprob, value, reward, actionprob in zip(self.logprobs, self.state_values, rewards, self.action_probs):
+            advantage = reward - value.item()
             action_loss = -logprob * advantage
             value_loss = F.smooth_l1_loss(value, reward)
+            entrop_sum += torch.sum(torch.special.entr(actionprob))
             loss += (action_loss + value_loss)
-        return loss
+        return loss + w * (1. / entrop_sum)
 
     def clearMemory(self):
         del self.logprobs[:]
         del self.state_values[:]
         del self.rewards[:]
+        del self.action_probs[:]
 
 
 class OfflineClassifier(nn.Module):

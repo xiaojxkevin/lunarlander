@@ -53,8 +53,19 @@ mean: 90.56262718486646 std: 50.90599388292423 max: 196.7647751914238 min: -89.9
 ```bash
 mean: 228.52481574436288 std: 70.03703811274288 max: 295.4086650330729 min: -167.62464413445562
 ```
+## Offline learning with BNN
 
+### A successful case:
+<img src="gifs/test_bnn/100/result.gif" width=400 height=240/>
+
+### Test on 100 Epochs
+```bash
+mean: 239.1624154306785 std: 39.08197482732056 max: 289.3384291423988 min: -13.772508972854709
+```
 ## Reference
 
 1. [https://aayala4.github.io/Lunar-Lander-Python/](https://aayala4.github.io/Lunar-Lander-Python/)
-2. [https://github.com/nikhilbarhate99/Actor-Critic-PyTorch](https://github.com/nikhilbarhate99/Actor-Critic-PyTorch)
+2. [https://zhuanlan.zhihu.com/p/97856004](https://zhuanlan.zhihu.com/p/97856004)
+3. [https://rail.eecs.berkeley.edu/deeprlcourse-fa17/f17docs/lecture_5_actor_critic_pdf.pdf](https://rail.eecs.berkeley.edu/deeprlcourse-fa17/f17docs/lecture_5_actor_critic_pdf.pdf)
+4. [https://blog.csdn.net/qq_33302004/article/details/115530428](https://blog.csdn.net/qq_33302004/article/details/115530428)
+5. [https://github.com/reedsogabe/Bayesian-Inverse-Reinforcement-Learning](https://github.com/reedsogabe/Bayesian-Inverse-Reinforcement-Learning)

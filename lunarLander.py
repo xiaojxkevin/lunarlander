@@ -67,6 +67,14 @@ class Game:
         game.resetScheduled = False
         game.state = 1
 
+    class GameInfo:
+        def __init__(self, ship, terrain):
+            self.ship = ship
+            self.terrain = terrain
+
+    def getGameInfo(self):
+        return Game.GameInfo(self.ship, self.terrain)
+
 game = Game()
 
 # Main logic for drawing
@@ -268,14 +276,6 @@ class Input:
         self.up = 0
         self.down = 0
 
-class GameInfo:
-    def __init__(self, ship, terrain):
-        self.ship = ship
-        self.terrain = terrain
-
-def getGameInfo():
-    return GameInfo(game.ship, game.terrain)
-
 # Update game state manually
 def customUpdate(dt, input: Input):
     game.dt = dt
@@ -399,16 +399,20 @@ def customUpdate(dt, input: Input):
 # pgzrun.go()
 
 if __name__ == "__main__":
-    game = Game()
-    dt = 1 / 60
-    game.resetGame()
-    input = Input()
-    input.up = 1
+    # game = Game()
+    # dt = 1 / 60
+    # game.resetGame()
+    # input = Input()
+    # input.up = 1
+    #
+    # while game.state != 3:
+    #     customUpdate(dt, input)
+    #
+    # print(game.ship.xpos, game.ship.ypos)
 
-    while game.state != 3:
-        customUpdate(dt, input)
+    info = getGameInfo()
+    ship = info.ship
 
-    print(game.ship.xpos, game.ship.ypos)
 
 
 

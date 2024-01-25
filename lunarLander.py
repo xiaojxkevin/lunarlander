@@ -1,4 +1,4 @@
-import pgzrun
+# import pgzrun
 import ship as lander
 import terrain as land
 
@@ -225,6 +225,7 @@ def update(dt):
                 game.ship.setGas(game.ship.getGas() - 100)
                 game.gas = game.ship.getGas()
                 sounds.explosion.play()
+                print(game.ship.xpos, game.ship.ypos)
             # Potential landing
             elif game.collided == 2:
                 sounds.rocket_thrust.stop()
@@ -395,4 +396,19 @@ def customUpdate(dt, input: Input):
 
 
 # Run game
-pgzrun.go()
+# pgzrun.go()
+
+if __name__ == "__main__":
+    game = Game()
+    dt = 1 / 60
+    game.resetGame()
+    input = Input()
+    input.up = 1
+
+    while game.state != 3:
+        customUpdate(dt, input)
+
+    print(game.ship.xpos, game.ship.ypos)
+
+
+

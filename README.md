@@ -57,4 +57,6 @@ mean: 228.52481574436288 std: 70.03703811274288 max: 295.4086650330729 min: -167
 ## Reference
 
 1. [https://aayala4.github.io/Lunar-Lander-Python/](https://aayala4.github.io/Lunar-Lander-Python/)
-2. [https://github.com/nikhilbarhate99/Actor-Critic-PyTorch](https://github.com/nikhilbarhate99/Actor-Critic-PyTorch)
+2. [https://zhuanlan.zhihu.com/p/97856004](https://zhuanlan.zhihu.com/p/97856004)
+3. [https://rail.eecs.berkeley.edu/deeprlcourse-fa17/f17docs/lecture_5_actor_critic_pdf.pdf](https://rail.eecs.berkeley.edu/deeprlcourse-fa17/f17docs/lecture_5_actor_critic_pdf.pdf)
+4. [https://blog.csdn.net/qq_33302004/article/details/115530428](https://blog.csdn.net/qq_33302004/article/details/115530428)

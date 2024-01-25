@@ -13,13 +13,13 @@ from model import ActorCritic
 opts = argparse.ArgumentParser()
 opts.add_argument("--random_seed", type=int, default=3407)
 opts.add_argument("--id", type=str, default='LunarLander-v2')
-opts.add_argument("--epochs", type=int, default=int(1e4))
+opts.add_argument("--epochs", type=int, default=1500)
 opts.add_argument("--lr", type=float, default=2e-2)
 opts.add_argument("--betas", type=tuple, default=(0.9, 0.99))
 opts.add_argument("--gamma", type=float, default=0.99)
 opts.add_argument("--exit_score", type=int, default=200)
 opts.add_argument("--max_iteration", type=int, default=int(1e4))
-opts.add_argument("--w", type=float, default=1)
+opts.add_argument("--w", type=float, default=1e-1)
 args = opts.parse_args()
 print(args)
 
@@ -62,19 +62,17 @@ for epoch in range(1, args.epochs+1):
     writer.add_scalar("Training score", score, epoch)
     # print("Epoch: {}, score: {}".format(epoch, score))
     optimizer.zero_grad()
-    if epoch > 100 and epoch < 400 and epoch % 50 == 0:
-        args.w *= 0.5
-    elif epoch > 400:
-        args.w = 0
-    loss = policy.compute_loss(args.gamma, args.w)
+    w = args.w if score <= 0 and epoch <= 200 else 0
+    loss = policy.compute_loss(args.gamma, w)
     loss.backward()
     optimizer.step()
     policy.clearMemory()
 
     if np.mean(running_reward[-20:]) > args.exit_score:
-        save_path = "./ckpts/v1.pth"
-        torch.save(policy.state_dict(), save_path)
         print("############## Finish Training ##############")
         break
+
+save_path = "./ckpts/v1-1.pth"
+torch.save(policy.state_dict(), save_path)
 
 env.close()

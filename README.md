@@ -56,7 +56,7 @@ mean: 228.52481574436288 std: 70.03703811274288 max: 295.4086650330729 min: -167
 ## Offline learning with BNN
 
 ### A successful case:
-<img src="gifs/test_bnn/100/result.gif" width=400 height=240/>
+<img src="assets/bnn/result.gif" width=400 height=240/>
 
 ### Test on 100 Epochs
 ```bash

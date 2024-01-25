@@ -47,26 +47,47 @@ class Game:
 
     # Reset game state
     def resetGame(self):
-        game.state = 2
-        game.score = 0
-        game.ship.setGas(750)
+        self.state = 2
+        self.score = 0
+        self.ship.setGas(750)
         self.resetLife()
 
     # Reset settings for new life
     def resetLife(self):
-        game.ship.setPos(100, 100)
-        game.ship.setVel(50, 0)
-        game.ship.setAng(0)
-        game.ship.setAccMode(0)
-        game.terrain.generate(WIDTH, HEIGHT, 0, 1)
-        game.collided = 0
-        game.multiplier = 1
-        game.xTerrain = game.terrain.getXPoints()
-        game.yTerrain = game.terrain.getYPoints()
-        game.playing = True
-        game.resetScheduled = False
+        self.ship.setPos(100, 100)
+        self.ship.setVel(50, 0)
+        self.ship.setAng(0)
+        self.ship.setAccMode(0)
+        self.terrain.generate(WIDTH, HEIGHT, 0, 1)
+        self.collided = 0
+        self.multiplier = 1
+        self.xTerrain = self.terrain.getXPoints()
+        self.yTerrain = self.terrain.getYPoints()
+        self.playing = True
+        self.resetScheduled = False
 
     def execute_action(self, action=0):
+        # angle of our ship
+        # Range (-PI, 0)
+        def angleReward(value):
+            return 0.0
+
+        # velocity of the ship
+        # value is a Tuple(a, b) here, watch out!
+        # Range xVel (0, 100) yVel (-unknown, 103.333)
+        def velocityReward(value):
+            return 0.0
+
+        # gas left
+        # Range (0, 750)
+        def gasReward(value):
+            return 0.0
+
+        # distance from ship to the center
+        # Range (0, 700)
+        def distanceReward(value):
+            return 0.0
+
         state = self
         reward = 0
         isGameEnd = 0
@@ -84,8 +105,6 @@ class Game:
         elif action == 4:
             self.customUpdate(Game.Input(down=1))
 
-        state = self
-
         if self.gas > 0:
             # If the user has a good landing
             if self.landingType == 1:
@@ -96,17 +115,22 @@ class Game:
             # Too fast resulting in a crash
             elif self.landingType == 3:
                 reward -= 200
+
+            reward += angleReward(self.ang)
+            reward += velocityReward((self.xVel, self.yVel))
+            reward += gasReward(self.gas)
+            reward += distanceReward(abs(self.ship.xpos - WIDTH / 2))
         else:
             reward -= 200
 
         isGameEnd = (self.state == 3)
 
-        return state, reward, isGameEnd
+        return self.get_ship_info(), reward, isGameEnd
 
     # Callback for switching from game over screen
     def gameOver(self):
-        game.resetScheduled = False
-        game.state = 1
+        self.resetScheduled = False
+        self.state = 1
 
     class GameInfo:
         def __init__(self, ship, terrain):
@@ -508,8 +532,9 @@ if __name__ == "__main__":
     while game.state != 3:
         game.customUpdate(Game.Input(up=1))
 
-    game.customDraw("lunar_lander.png")
+    print(game.yVel)
 
+    game.customDraw("lunar_lander.png")
 
 
 

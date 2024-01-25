@@ -261,7 +261,7 @@ class Game:
                 self.resetScheduled = True
                 self.resetLife()
 
-        file_name = "circle_blue.png"
+        file_name = "Lunar_Lander.png"
         pg.image.save(win, file_name)
 
 # Main logic for drawing

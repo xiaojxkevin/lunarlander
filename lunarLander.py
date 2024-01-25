@@ -75,6 +75,132 @@ class Game:
     def getGameInfo(self):
         return Game.GameInfo(self.ship, self.terrain)
 
+    class Input:
+        def __init__(self, left=0, right=0, up=0, down=0):
+            self.p = 0
+            self.q = 0
+            self.left = left
+            self.right = right
+            self.up = up
+            self.down = down
+
+    # Update game state manually
+    def customUpdate(self, input: Input, dt = 1 / 60):
+        self.dt = dt
+
+        # Menu state. Wait for 'p' to start game
+        if self.state == 1:
+            if input.p:
+                self.resetGame()
+
+        # Game state. Update game variables, update ship, check collisions
+        elif self.state == 2:
+            if self.playing:
+                # Get the fuel, velocities, positions, and angle
+                self.gas = self.ship.getGas()
+                self.xVel = self.ship.getXvel()
+                self.yVel = self.ship.getYvel()
+                self.x = self.ship.getXpos()
+                self.y = self.ship.getYpos()
+                self.ang = self.ship.getAng()
+
+                self.y = self.y + self.yVel * self.dt + .5 * 30. * self.dt * self.dt
+                self.x = self.x + self.xVel * self.dt
+
+                # If ship goes off on the side of the screen, it is moved to the other side.
+                if self.x > WIDTH + 10:
+                    self.x = -10
+                elif self.x < -10:
+                    self.x = WIDTH + 10
+
+                # If the ship goes too high, then it is placed back at the initial spawn point
+                if self.y < -50:
+                    self.x = 100
+                    self.y = 100
+                    self.xVel = 50
+                    self.yVel = 0
+                    self.ship.setAng(0)
+                    self.ship.setAccMode(0)
+
+                # Makes x velocity stay within - 100 and 100 inclusive
+                if self.xVel >= 100:
+                    self.xVel = 100
+                elif self.xVel <= -100:
+                    self.xVel = -100
+
+                # Consider gravity
+                self.yVel = self.yVel + 10. * self.dt
+
+                # Calculate new velocities based on ship acceleration
+                self.xVel, self.yVel = self.ship.accelerate(self.xVel, self.yVel)
+
+                # Update ship's new velocities and position
+                self.ship.setPos(self.x, self.y)
+                self.ship.setVel(self.xVel, self.yVel)
+
+                # Left Arrow. Rotate left.
+                if input.left:
+                    self.ship.rotate(self.ang - PI / 14.)
+                # Right Arrow. Rotate right.
+                elif input.right:
+                    self.ship.rotate(self.ang + PI / 14.)
+                # Down Arrow. Decrease rocket thrust
+                elif input.down:
+                    self.ship.accelerateChangeWithoutSound(-1)
+                # Up arrow. Increase rocket thrust
+                elif input.up:
+                    self.ship.accelerateChangeWithoutSound(1)
+                # Q key; Effectively quit program
+                elif input.q:
+                    self.state = 1
+
+                # Recalculates ship's hitbox
+                self.ship.hitbox()
+
+                # Checks if the ship collided with the terrain
+                self.collided = 0
+                self.collided = self.ship.collision(self.xTerrain, self.yTerrain)
+
+                # We just play once ever turn
+                if self.collided != 0:
+                    self.state = 3
+
+                # Crashed
+                if self.collided == 1:
+                    self.playing = False
+                    self.score += 5
+                    self.ship.setGas(self.ship.getGas() - 100)
+                    self.gas = self.ship.getGas()
+                # Potential landing
+                elif self.collided == 2:
+                    self.playing = False
+
+                    # Checks if the ship landed on a multiplier spot
+                    self.multiplier = self.terrain.multiplierCheck(self.ship.getXpos())
+
+                    # If the user has a good landing
+                    if self.yVel < 12 and abs(self.xVel) < 25:
+                        self.landingType = 1
+                        self.ship.setGas(self.ship.getGas() + 50)
+                        self.score += self.multiplier * 50
+                    # If the user has a hard landing
+                    elif self.yVel < 25 and abs(self.xVel) < 25:
+                        self.landingType = 2
+                        self.score += self.multiplier * 15
+                    # If the user was going too fast resulting in a crash
+                    else:
+                        self.landingType = 3
+                        self.score += 5
+                        self.ship.setGas(self.ship.getGas() - 100)
+
+                    # Update game state gas for display
+                    self.gas = self.ship.getGas()
+
+                # Out of gas
+                if self.ship.getGas() <= 0:
+                    self.gas = self.ship.getGas()
+                    self.state = 3
+
 game = Game()
 
 # Main logic for drawing
@@ -267,151 +393,17 @@ def update(dt):
                 game.gas = game.ship.getGas()
                 game.state = 3
 
-class Input:
-    def __init__(self):
-        self.p = 0
-        self.q = 0
-        self.left = 0
-        self.right = 0
-        self.up = 0
-        self.down = 0
-
-# Update game state manually
-def customUpdate(dt, input: Input):
-    game.dt = dt
-
-    # Menu state. Wait for 'p' to start game
-    if game.state == 1:
-        if input.p:
-            game.resetGame()
-
-    # Game state. Update game variables, update ship, check collisions
-    elif game.state == 2:
-        if game.playing:
-            # Get the fuel, velocities, positions, and angle
-            game.gas = game.ship.getGas()
-            game.xVel = game.ship.getXvel()
-            game.yVel = game.ship.getYvel()
-            game.x = game.ship.getXpos()
-            game.y = game.ship.getYpos()
-            game.ang = game.ship.getAng()
-
-            game.y = game.y + game.yVel * game.dt + .5 * 30. * game.dt * game.dt
-            game.x = game.x + game.xVel * game.dt
-
-            # If ship goes off on the side of the screen, it is moved to the other side.
-            if game.x > WIDTH + 10:
-                game.x = -10
-            elif game.x < -10:
-                game.x = WIDTH + 10
-
-            # If the ship goes too high, then it is placed back at the initial spawn point
-            if game.y < -50:
-                game.x = 100
-                game.y = 100
-                game.xVel = 50
-                game.yVel = 0
-                game.ship.setAng(0)
-                game.ship.setAccMode(0)
-
-            # Makes x velocity stay within - 100 and 100 inclusive
-            if game.xVel >= 100:
-                game.xVel = 100
-            elif game.xVel <= -100:
-                game.xVel = -100
-
-            # Consider gravity
-            game.yVel = game.yVel + 10. * game.dt
-
-            # Calculate new velocities based on ship acceleration
-            game.xVel, game.yVel = game.ship.accelerate(game.xVel, game.yVel)
-
-            # Update ship's new velocities and position
-            game.ship.setPos(game.x, game.y)
-            game.ship.setVel(game.xVel, game.yVel)
-
-            # Left Arrow. Rotate left.
-            if input.left:
-                game.ship.rotate(game.ang - PI / 14.)
-            # Right Arrow. Rotate right.
-            elif input.right:
-                game.ship.rotate(game.ang + PI / 14.)
-            # Down Arrow. Decrease rocket thrust
-            elif input.down:
-                game.ship.accelerateChangeWithoutSound(-1)
-            # Up arrow. Increase rocket thrust
-            elif input.up:
-                game.ship.accelerateChangeWithoutSound(1)
-            # Q key; Effectively quit program
-            elif input.q:
-                game.state = 1
-
-            # Recalculates ship's hitbox
-            game.ship.hitbox()
-
-            # Checks if the ship collided with the terrain
-            game.collided = 0
-            game.collided = game.ship.collision(game.xTerrain, game.yTerrain)
-
-            # We just play once ever turn
-            if game.collided != 0:
-                game.state = 3
-
-            # Crashed
-            if game.collided == 1:
-                game.playing = False
-                game.score += 5
-                game.ship.setGas(game.ship.getGas() - 100)
-                game.gas = game.ship.getGas()
-            # Potential landing
-            elif game.collided == 2:
-                game.playing = False
-
-                # Checks if the ship landed on a multiplier spot
-                game.multiplier = game.terrain.multiplierCheck(game.ship.getXpos())
-
-                # If the user has a good landing
-                if game.yVel < 12 and abs(game.xVel) < 25:
-                    game.landingType = 1
-                    game.ship.setGas(game.ship.getGas() + 50)
-                    game.score += game.multiplier * 50
-                # If the user has a hard landing
-                elif game.yVel < 25 and abs(game.xVel) < 25:
-                    game.landingType = 2
-                    game.score += game.multiplier * 15
-                # If the user was going too fast resulting in a crash
-                else:
-                    game.landingType = 3
-                    game.score += 5
-                    game.ship.setGas(game.ship.getGas() - 100)
-
-                # Update game state gas for display
-                game.gas = game.ship.getGas()
-
-            # Out of gas
-            if game.ship.getGas() <= 0:
-                game.gas = game.ship.getGas()
-                game.state = 3
-
-
-
 # Run game
 # pgzrun.go()
 
 if __name__ == "__main__":
-    # game = Game()
-    # dt = 1 / 60
-    # game.resetGame()
-    # input = Input()
-    # input.up = 1
-    #
-    # while game.state != 3:
-    #     customUpdate(dt, input)
-    #
-    # print(game.ship.xpos, game.ship.ypos)
+    game = Game()
+    game.resetGame()
 
-    info = getGameInfo()
-    ship = info.ship
+    while game.state != 3:
+        game.customUpdate(Game.Input(up=1))
+
+    print(game.ship.xpos, game.ship.ypos)
 
 
 

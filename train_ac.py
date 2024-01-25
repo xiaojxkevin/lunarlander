@@ -1,6 +1,7 @@
 import os
 import torch
 import time
+import numpy as np
 import torch.optim as optim
 import argparse
 import gym
@@ -16,8 +17,9 @@ opts.add_argument("--epochs", type=int, default=int(1e4))
 opts.add_argument("--lr", type=float, default=2e-2)
 opts.add_argument("--betas", type=tuple, default=(0.9, 0.99))
 opts.add_argument("--gamma", type=float, default=0.99)
-opts.add_argument("--exit_score", type=int, default=4000)
+opts.add_argument("--exit_score", type=int, default=200)
 opts.add_argument("--max_iteration", type=int, default=int(1e4))
+opts.add_argument("--w", type=float, default=1)
 args = opts.parse_args()
 print(args)
 
@@ -31,9 +33,9 @@ policy = ActorCritic()
 optimizer = optim.Adam(policy.parameters(), lr=args.lr, betas=args.betas)
 
 current_time = time.strftime("%Y-%m-%dT%H:%M", time.localtime())
-writer = SummaryWriter(log_dir=os.path.join("./log", current_time))
+writer = SummaryWriter(log_dir=os.path.join("./log/ac", current_time))
 
-running_reward = 0
+running_reward = []
 for epoch in range(1, args.epochs+1):
     obser, _ = env.reset()
 
@@ -56,23 +58,23 @@ for epoch in range(1, args.epochs+1):
         if terminated or truncated:
             break
 
-    running_reward += score
+    running_reward.append(score)
     writer.add_scalar("Training score", score, epoch)
+    # print("Epoch: {}, score: {}".format(epoch, score))
     optimizer.zero_grad()
-    loss = policy.calculateLoss(args.gamma)
+    if epoch > 100 and epoch < 400 and epoch % 50 == 0:
+        args.w *= 0.5
+    elif epoch > 400:
+        args.w = 0
+    loss = policy.compute_loss(args.gamma, args.w)
     loss.backward()
     optimizer.step()
     policy.clearMemory()
 
-    if running_reward > args.exit_score:
-        save_path = "./ckpts/LunarLander_{}_{}_{}.pth".format(args.lr, args.betas[0], args.betas[1])
+    if np.mean(running_reward[-20:]) > args.exit_score:
+        save_path = "./ckpts/v1.pth"
         torch.save(policy.state_dict(), save_path)
         print("############## Finish Training ##############")
         break
-
-    if epoch % 20 == 0:
-        running_reward = running_reward / 20
-        print('Epoch {}, reward: {}'.format(epoch, running_reward))
-        running_reward = 0
 
 env.close()

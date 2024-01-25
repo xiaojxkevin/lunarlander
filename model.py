@@ -99,20 +99,19 @@ class ActorCritic(nn.Module):
         x = torch.from_numpy(x).float()
         # Endocding
         x = F.relu(self.encoder(x))
-
-        # Decoding
+        # Value
         state_value = self.value_layer(x)
-
+        # Action
         action_probs = F.softmax(self.action_layer(x), dim=0)
         action_distribution = Categorical(action_probs)
         action = action_distribution.sample()
-
+        
         self.logprobs.append(action_distribution.log_prob(action))
         self.state_values.append(state_value)
 
         return action.item()
 
-    def calculateLoss(self, gamma=0.99):
+    def compute_loss(self, gamma=0.99, w=0.5):
 
         # calculating discounted rewards:
         rewards = []
@@ -127,10 +126,10 @@ class ActorCritic(nn.Module):
 
         loss = 0
         for logprob, value, reward in zip(self.logprobs, self.state_values, rewards):
-            advantage = reward  - value.item()
+            advantage = reward - value.item()
             action_loss = -logprob * advantage
             value_loss = F.smooth_l1_loss(value, reward)
-            loss += (action_loss + value_loss)
+            loss += (action_loss + value_loss - w / logprob*torch.exp(logprob))
         return loss
 
     def clearMemory(self):

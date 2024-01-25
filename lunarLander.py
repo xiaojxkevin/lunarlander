@@ -106,6 +106,12 @@ class Game:
             self.customUpdate(Game.Input(down=1))
 
         if self.gas > 0:
+            if self.landingType == 1 or 2 or 3:
+                reward += angleReward(self.ang)
+                reward += velocityReward((self.xVel, self.yVel))
+                reward += gasReward(self.gas)
+                reward += distanceReward(abs(self.ship.xpos - WIDTH / 2))
+
             # If the user has a good landing
             if self.landingType == 1:
                 reward += 500
@@ -115,11 +121,6 @@ class Game:
             # Too fast resulting in a crash
             elif self.landingType == 3:
                 reward -= 200
-
-            reward += angleReward(self.ang)
-            reward += velocityReward((self.xVel, self.yVel))
-            reward += gasReward(self.gas)
-            reward += distanceReward(abs(self.ship.xpos - WIDTH / 2))
         else:
             reward -= 200
 

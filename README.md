@@ -44,11 +44,6 @@ mean: 225.14527054974315 std: 62.88393475576646 max: 299.080730952846 min: -91.0
 mean: 90.56262718486646 std: 50.90599388292423 max: 196.7647751914238 min: -89.969924180479
 ```
 
-### With Exploration
-
-Two training phases
-<img src="assets/ac/a2c_explor.png" width=400 height=240/>
-
 ## Offline learning with MLP
 
 ### A successful case:

@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.distributions import Categorical
-
+import math
 class QLearning(nn.Module):
     def __init__(self, maxlen=500000, batch_size=64, gamma=0.99, epsilon=1.0) -> None:
         super(QLearning, self).__init__()
@@ -154,3 +154,127 @@ class OfflineClassifier(nn.Module):
         x = self.linear4(x)
 
         return x
+
+
+
+class Bayes(nn.Module):
+    def __init__(self):
+        super(Bayes, self).__init__()
+        # self.evi = nn.Sequential(
+        #   nn.Linear(9, 128),
+        #   nn.ReLU(),
+        #   nn.Linear(128, 128),
+        #   nn.ReLU(),
+        #     nn.Linear(128, 1),
+        #     nn.Sigmoid
+        # )
+        self.cond = nn.Sequential(
+          nn.Linear(9, 128),
+          nn.ReLU(),
+          nn.Linear(128, 128),
+          nn.ReLU(),
+            nn.Linear(128, 4),
+            nn.Sigmoid()
+        )
+        self.reward_li=[]
+        self.prob = []
+    def forward(self, x2):
+        # evi_i = torch.from_numpy(x1).float()
+        cond_i=torch.from_numpy(x2).float()
+        cond_o=F.softmax(self.cond(cond_i), dim=0)
+        action_distribution = Categorical(cond_o)
+        action = action_distribution.sample()
+        self.prob.append(cond_o)
+        return action.item()
+
+    def calculateLoss(self,gamma):
+        dis_reward = 0
+        target=300
+        temp_reward=0
+        # self.reward_li=torch.tensor(self.reward_li)
+        for i in range(len(self.prob)):
+            temp_reward+=self.prob[i][0]*self.reward_li[i]
+            temp_reward+=self.prob[i][1]*self.reward_li[i]
+            temp_reward+=self.prob[i][2]*self.reward_li[i]
+            temp_reward+=self.prob[i][3]*self.reward_li[i]
+            dis_reward=temp_reward+gamma*dis_reward
+            temp_reward=0
+            # rewards.insert(0, dis_reward)
+        
+        # normalizing the rewards:
+        target=torch.tensor(target).float()
+        loss=F.mse_loss(target, dis_reward)
+        return loss
+    def clearMemory(self):
+        del self.reward_li[:]
+        del self.prob[:]
+
+
+class MixGaussian(object):
+    def __init__(self,sigma_1,sigma_2,weight):
+        super().__init__()
+        self.weight=weight
+        self.gaussian1 = torch.distributions.Normal(0,sigma_1.to('cuda:0'))
+        self.gaussian2 = torch.distributions.Normal(0,sigma_2.to('cuda:0'))
+    
+    def log_prob(self, input):
+        prob1 = torch.exp(self.gaussian1.log_prob(input))
+        prob2 = torch.exp(self.gaussian2.log_prob(input))
+        return (torch.log(self.weight * prob1 + (1-self.weight) * prob2)).sum()
+
+class BayesianLayer(nn.Module):
+    def __init__(self, channel_in, channel_out):
+        super().__init__()
+        self.channel_in = channel_in
+        self.channel_out = channel_out
+        self.weight_mu = nn.Parameter(torch.Tensor(self.channel_out, self.channel_in).uniform_(-0.2, 0.2).to('cuda:0'))
+        self.weight_rho = nn.Parameter(torch.Tensor(self.channel_out, self.channel_in).uniform_(-10, -9).to('cuda:0'))
+        self.bias_mu = nn.Parameter(torch.Tensor(self.channel_out).uniform_(-0.2, 0.2).to('cuda:0'))
+        self.bias_rho = nn.Parameter(torch.Tensor(self.channel_out).uniform_(-10, -9).to('cuda:0'))
+        self.weight_prior = MixGaussian(torch.FloatTensor([math.exp(0)]),torch.FloatTensor([math.exp(-4)]),0.5)
+        self.bias_prior = MixGaussian(torch.FloatTensor([math.exp(0)]),torch.FloatTensor([math.exp(-6)]),0.5)
+        self.log_prior = 0
+        self.log_posterior = 0
+
+    def forward(self, input,sample=True, calculate=True):
+        if sample:
+            weight_epsilon = torch.distributions.Normal(0,1).sample(self.weight_rho.size()).to('cuda:0')
+            bias_epsilon = torch.distributions.Normal(0,1).sample(self.bias_rho.size()).to('cuda:0')
+            weight = self.weight_mu + torch.log1p(torch.exp(self.weight_rho)) * weight_epsilon 
+            bias = self.bias_mu + torch.log1p(torch.exp(self.bias_rho)) * bias_epsilon
+        else:
+            weight = self.weight_mu
+            bias = self.bias_mu
+        if calculate:
+            self.log_prior = self.weight_prior.log_prob(weight) + self.bias_prior.log_prob(bias)
+            weight_log_posterior=(-math.log(math.sqrt(2 * math.pi))- torch.log(torch.log1p(torch.exp(self.weight_rho)))- ((weight - self.weight_mu) ** 2) / (2 * torch.log1p(torch.exp(self.weight_rho)) ** 2)).sum()
+            bias_log_posterior=(-math.log(math.sqrt(2 * math.pi))- torch.log(torch.log1p(torch.exp(self.bias_rho)))- ((bias - self.bias_mu) ** 2) / (2 * torch.log1p(torch.exp(self.bias_rho)) ** 2)).sum()
+            self.log_posterior = weight_log_posterior + bias_log_posterior
+
+        return F.linear(input, weight, bias)
+
+
+class BNN(nn.Module):
+    def __init__(self,channel_in):
+        super().__init__()
+        self.channel_in=channel_in
+        self.l1 = BayesianLayer(self.channel_in, 256)
+        self.l2 = BayesianLayer(256, 128)
+        self.l3 = BayesianLayer(128, 4)
+    
+    def forward(self, x, sample=False,cal=True):
+        x = x.view(-1, self.channel_in)
+        x = F.relu(self.l1(x, sample,cal))
+        x = F.relu(self.l2(x, sample,cal))
+        x = F.relu(self.l3(x, sample,cal))
+        return x
+    
+    def log_prior(self):
+        return self.l1.log_prior + self.l2.log_prior + self.l3.log_prior
+    
+    def log_posterior(self):
+        return self.l1.log_posterior + self.l2.log_posterior + self.l2.log_posterior
+    
+    def mse_l(self,x1,x2):
+        return F.mse_loss(x1, x2, reduction='sum')
+    

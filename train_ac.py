@@ -31,7 +31,7 @@ policy = ActorCritic()
 optimizer = optim.Adam(policy.parameters(), lr=args.lr, betas=args.betas)
 
 current_time = time.strftime("%Y-%m-%dT%H:%M", time.localtime())
-writer = SummaryWriter(log_dir=os.path.join("./log", current_time))
+# writer = SummaryWriter(log_dir=os.path.join("./log", current_time))
 
 running_reward = 0
 for epoch in range(1, args.epochs+1):
@@ -51,13 +51,13 @@ for epoch in range(1, args.epochs+1):
             gif_dir = "./gifs/train/{:02d}".format(epoch)
             if not os.path.exists(gif_dir):
                 os.makedirs(gif_dir)
-            img.save(os.path.join(gif_dir, "{:04d}.png").format(t))
+            img.save(os.path.join(gif_dir, "{:04d}.png".format(t)))
 
         if terminated or truncated:
             break
 
     running_reward += score
-    writer.add_scalar("Training score", score, epoch)
+    # writer.add_scalar("Training score", score, epoch)
     optimizer.zero_grad()
     loss = policy.calculateLoss(args.gamma)
     loss.backward()
@@ -65,6 +65,8 @@ for epoch in range(1, args.epochs+1):
     policy.clearMemory()
 
     if running_reward > args.exit_score:
+        if not os.path.exists('./ckpt'):
+            os.makedirs('./ckpt')
         save_path = "./ckpts/LunarLander_{}_{}_{}.pth".format(args.lr, args.betas[0], args.betas[1])
         torch.save(policy.state_dict(), save_path)
         print("############## Finish Training ##############")

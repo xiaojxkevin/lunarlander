@@ -246,7 +246,7 @@ class Game:
                     self.gas = self.ship.getGas()
                     self.state = 3
 
-    def customDraw(self):
+    def customDraw(self, path):
         import pygame as pg
 
         pg.init()
@@ -302,8 +302,7 @@ class Game:
                 self.resetScheduled = True
                 self.resetLife()
 
-        file_name = "Lunar_Lander.png"
-        pg.image.save(win, file_name)
+        pg.image.save(win, path)
 
 # Main logic for drawing
 def draw():
@@ -509,7 +508,7 @@ if __name__ == "__main__":
     while game.state != 3:
         game.customUpdate(Game.Input(up=1))
 
-    game.customDraw()
+    game.customDraw("lunar_lander.png")
 
 
 

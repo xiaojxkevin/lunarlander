@@ -19,7 +19,7 @@ opts.add_argument("--betas", type=tuple, default=(0.9, 0.99))
 opts.add_argument("--gamma", type=float, default=0.99)
 opts.add_argument("--exit_score", type=int, default=200)
 opts.add_argument("--max_iteration", type=int, default=int(1e4))
-opts.add_argument("--w", type=float, default=1e-1)
+opts.add_argument("--w", type=float, default=1e-4)
 args = opts.parse_args()
 print(args)
 
@@ -62,7 +62,7 @@ for epoch in range(1, args.epochs+1):
     writer.add_scalar("Training score", score, epoch)
     # print("Epoch: {}, score: {}".format(epoch, score))
     optimizer.zero_grad()
-    w = args.w if score <= 0 and epoch <= 200 else 0
+    w = args.w if score > 0 and epoch > 300 else 0
     loss = policy.compute_loss(args.gamma, w)
     loss.backward()
     optimizer.step()

@@ -82,7 +82,7 @@ class QLearning(nn.Module):
         return loss
         
 
-
+# This class is modified on https://github.com/nikhilbarhate99/Actor-Critic-PyTorch
 class ActorCritic(nn.Module):
     def __init__(self):
         super(ActorCritic, self).__init__()
@@ -142,7 +142,7 @@ class ActorCritic(nn.Module):
             value_loss = F.smooth_l1_loss(value, reward)
             entrop_sum += torch.sum(torch.special.entr(actionprob))
             loss += (action_loss + value_loss)
-        return loss + w * (1. / entrop_sum)
+        return loss + w * entrop_sum
 
     def clearMemory(self):
         del self.logprobs[:]

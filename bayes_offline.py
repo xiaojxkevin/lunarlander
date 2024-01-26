@@ -44,8 +44,8 @@ for epoch in range(1, args.epochs + 1):
     outputs = model(st, sample=True,cal=True)
     log_prior= model.log_prior()
     log_variational_posterior=model.log_posterior()
-    negative_log_likelihood = model.mse_l(outputs, targets[0:len(outputs)])
-    loss =(log_variational_posterior - log_prior)/3 + negative_log_likelihood
+    mse_loss = model.mse_l(outputs, targets)
+    loss =(log_variational_posterior - log_prior) + mse_loss
     loss.backward()
     optimizer.step()
     lr_scheduler.step()

@@ -7,10 +7,10 @@ import numpy as np
 import random
 from model import Bayes
 import torch.optim as optim
-from test import test
+from test import test_bayes_net
 import argparse
-
-epochs = 120000
+import matplotlib.pyplot as plt
+epochs = 50000
 MAX_ITERATION = 10000
 render = True
 required = 100
@@ -35,6 +35,8 @@ env.action_space.seed(args.random_seed)
 
 policy=Bayes()
 optimizer = optim.Adam(policy.parameters(), lr=5e-1, betas=(0.9, 0.99))
+epoch_l=[]
+score_l=[]
 for epoch in range(1, epochs+1):
     obser,_=env.reset()
     running_reward = 0
@@ -56,9 +58,13 @@ for epoch in range(1, epochs+1):
             if not os.path.exists(gif_dir):
                 os.makedirs(gif_dir)
             img.save(os.path.join(gif_dir, "{:04d}.png".format(t)))
+
+
         if terminated or truncated:
             break
-
+    if epoch%100==0:
+        epoch_l.append(epoch)
+        score_l.append(running_reward)
     # if count == required:
     #     break
     optimizer.zero_grad()
@@ -73,8 +79,13 @@ if not os.path.exists('./ckpt'):
         os.makedirs('./ckpt')
 save_path = "./ckpt/LunarLander_bayes.pth"
 torch.save(policy.state_dict(), save_path)
+plt.figure(1)
+plt.plot(epoch_l,score_l,label='Score')
+plt.xlabel('Epoch')
+plt.ylabel('Score_Bayes_net')
+plt.savefig('./results/Score_Bayes_net.png')
 print("############## Finish Training ##############")
-test(load_path=save_path)
+test_bayes_net(load_path=save_path)
 
     # action_prob[0,:]=0.8*temp_prob[0,:]+0.5*action_prob[0,:]/np.sum(action_prob[0,:])
     # action_prob[1,:]=0.8*temp_prob[1,:]+0.5*action_prob[1,:]/np.sum(action_prob[1,:])

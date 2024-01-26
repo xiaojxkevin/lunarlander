@@ -7,6 +7,7 @@ import numpy as np
 import random
 import argparse
 from model import ActorCritic
+import matplotlib.pyplot as plt
 
 epochs = 100000
 MAX_ITERATION = 10000
@@ -27,6 +28,8 @@ env.action_space.seed(args.random_seed)
 lr=0.9
 action_prob=np.zeros((3,4,4))
 action_prob[:,:,:]=0.25
+epoch_l=[]
+score_l=[]
 for epoch in range(1, epochs+1):
     obser,_=env.reset()
     running_reward = 0
@@ -105,6 +108,8 @@ for epoch in range(1, epochs+1):
         # recored_actions.append(actions)
     
     if epoch%100==0:
+        epoch_l.append(epoch)
+        score_l.append(running_reward)
         print('Episode {}\tReward: {}'.format(epoch, running_reward))
         print(action_prob)
     for i in range(3):
@@ -115,4 +120,10 @@ for epoch in range(1, epochs+1):
     # print(action_prob)
     # if epoch%500==0:
     #     print(action_prob)
+print("############## Finish Training ##############")           
+plt.figure(1)
+plt.plot(epoch_l,score_l,label='Score')
+plt.xlabel('Epoch')
+plt.ylabel('Score_Bayes')
+plt.savefig('./results/Score_Bayes.png')
 env.close()

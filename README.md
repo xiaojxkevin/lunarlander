@@ -1,16 +1,5 @@
 # AI Project: Lunar Lander
 
-## Set up env
-
-```bash
-conda create -n lunar python=3.8
-conda install swig
-pip install gym[box2d]
-# install pytorch you need
-conda install -c ankurankan pgmpy # may be for Probabilistic Graphical Models
-pip install tensorboard tensorboardX
-```
-
 ## RL with QLearning
 
 ### Visual Results
@@ -25,6 +14,11 @@ pip install tensorboard tensorboardX
 ```bash
 mean: 225.14527054974315 std: 62.88393475576646 max: 299.080730952846 min: -91.00848452617487
 ```
+
+### QLearing with self-designed Game
+It is too difficult to solve, and here's our best result
+
+<img src="assets/game/game.gif" width=400 height=240/>
 
 ## RL with ActorCritic
 

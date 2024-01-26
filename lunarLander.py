@@ -54,8 +54,8 @@ class Game:
 
     # Reset settings for new life
     def resetLife(self):
-        self.ship.setPos(100, 100)
-        self.ship.setVel(50, 0)
+        self.ship.setPos(500, 500)
+        self.ship.setVel(40, 0)
         self.ship.setAng(0)
         self.ship.setAccMode(0)
         self.terrain.generate(WIDTH, HEIGHT, 0, 1)
@@ -69,24 +69,38 @@ class Game:
     def execute_action(self, action=0):
         # angle of our ship
         # Range (-PI, 0)
-        def angleReward(value):
-            return 0.0
+        orginal_accMode = self.ship.accMode
+        def angleReward(ang):
+            if self.state == 3:
+                return 350 / (1 + 10*(ang+PI/2)**2)
+            else :
+                return 5/(1+ 10*(ang+PI/2)**2)
 
         # velocity of the ship
         # value is a Tuple(a, b) here, watch out!
         # Range xVel (0, 100) yVel (-unknown, 103.333)
-        def velocityReward(value):
-            return 0.0
+        def velocityReward(xVel, yVel):
+            if self.state == 3:
+                return 300 / (1 + (xVel**2 + yVel**2))
+            else:
+                return 10 / (1 + (xVel**2 + yVel**2))
+            
 
         # gas left
         # Range (0, 750)
-        def gasReward(value):
-            return 0.0
+        def gasReward(gas):
+            if self.state == 3:
+                return gas / 10
+            else:
+                return 0.8*float(orginal_accMode == self.ship.accMode)
 
         # distance from ship to the center
         # Range (0, 700)
-        def distanceReward(value):
-            return 0.0
+        def distanceReward(dis):
+            if self.state == 3:
+                return 500/(1+dis**2)
+            else:
+                return 20/(1+dis**2+self.ship.ypos**2)
 
         state = self
         reward = 0
@@ -105,24 +119,26 @@ class Game:
         elif action == 4:
             self.customUpdate(Game.Input(down=1))
 
-        if self.gas > 0:
-            if self.landingType == 1 or 2 or 3:
-                reward += angleReward(self.ang)
-                reward += velocityReward((self.xVel, self.yVel))
-                reward += gasReward(self.gas)
-                reward += distanceReward(abs(self.ship.xpos - WIDTH / 2))
+        reward -= 1
+        reward += angleReward(self.ang)
+        reward += velocityReward(self.xVel, self.yVel)
+        reward += gasReward(self.gas)
+        reward += distanceReward(abs(self.ship.xpos - WIDTH / 2))
 
+        if self.gas > 0:
             # If the user has a good landing
             if self.landingType == 1:
-                reward += 500
+                reward += 1200
             # If the user has a hard landing
             elif self.landingType == 2:
-                reward += 200
+                reward += 800
             # Too fast resulting in a crash
             elif self.landingType == 3:
-                reward -= 200
+                reward -= 0
+            elif self.landingType == 4:
+                reward -= 1500
         else:
-            reward -= 200
+            reward -= 1500
 
         isGameEnd = (self.state == 3)
 
@@ -178,19 +194,18 @@ class Game:
                 self.x = self.x + self.xVel * self.dt
 
                 # If ship goes off on the side of the screen, it is moved to the other side.
-                if self.x > WIDTH + 10:
-                    self.x = -10
-                elif self.x < -10:
-                    self.x = WIDTH + 10
+                if self.x > WIDTH + 10 or self.x < -10:
+                    self.state = 3
+                    self.playing = False
+                    self.landingType = 4
+                    return
 
                 # If the ship goes too high, then it is placed back at the initial spawn point
                 if self.y < -50:
-                    self.x = 100
-                    self.y = 100
-                    self.xVel = 50
-                    self.yVel = 0
-                    self.ship.setAng(0)
-                    self.ship.setAccMode(0)
+                    self.state = 3
+                    self.playing = False
+                    self.landingType = 4
+                    return
 
                 # Makes x velocity stay within - 100 and 100 inclusive
                 if self.xVel >= 100:
@@ -241,6 +256,7 @@ class Game:
                     self.score += 5
                     self.ship.setGas(self.ship.getGas() - 100)
                     self.gas = self.ship.getGas()
+                    self.landingType = 3
                 # Potential landing
                 elif self.collided == 2:
                     self.playing = False
@@ -536,6 +552,5 @@ if __name__ == "__main__":
     print(game.yVel)
 
     game.customDraw("lunar_lander.png")
-
 
 

@@ -11,7 +11,7 @@ epochs = 10000
 load_path="./ckpts/v2.pth"
 MAX_ITERATION = 10000
 render = False
-required = 500
+required = 100
 env = gym.make('LunarLander-v2',
                 render_mode = "rgb_array")
 

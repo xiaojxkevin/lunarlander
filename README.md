@@ -1,5 +1,7 @@
 # AI Project: Lunar Lander
 
+Please check [report](./ai_final_report.pdf) for more information!
+
 ## RL with QLearning
 
 ### Visual Results
